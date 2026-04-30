@@ -1,0 +1,36 @@
+import streamlit as st
+import pickle
+import numpy as np
+
+# 1. Load the saved model and vectorizer
+# Make sure these files are in the same GitHub folder as app.py
+try:
+    model = pickle.load(open('model.pkl', 'rb'))
+    vectorizer = pickle.load(open('vectorizer.pkl', 'rb'))
+except FileNotFoundError:
+    st.error("Model or Vectorizer file not found! Please upload model.pkl and vectorizer.pkl.")
+
+# 2. Set up the Streamlit UI
+st.set_page_config(page_title="IMDb Sentiment Classifier")
+st.title("🎬 IMDb Movie Review Sentiment Analysis")
+st.markdown("Enter a movie review below to see if it's **Positive** or **Negative**.")
+
+# 3. User Input
+user_input = st.text_area("Write your review here...", height=150)
+
+# 4. Prediction Logic
+if st.button("Analyze Sentiment"):
+    if user_input.strip():
+        # Transform the text using the loaded vectorizer
+        transformed_input = vectorizer.transform([user_input])
+        
+        # Make prediction
+        prediction = model.predict(transformed_input)[0]
+        
+        # Display Result
+        if prediction == 1: # Assuming 1 is Positive
+            st.success("### Prediction: POSITIVE 😊")
+        else:
+            st.error("### Prediction: NEGATIVE 😞")
+    else:
+        st.warning("Please enter a review first.")
